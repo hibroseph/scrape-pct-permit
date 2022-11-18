@@ -47,6 +47,7 @@ const CheckForPermitsAvailable = async (websiteSource) => {
         if (nonSentMessages.length > 0) {
             console.log(`Open Permits ${StringifyAvailablePermits(availablePermits)}`)
            
+            console.log(`Sending message to ${notifyPhoneNumber} from ${twilioPhoneNumber}`)
             client.messages
             .create({
                 body: "Open Permits " + StringifyAvailablePermits(nonSentMessages),
@@ -60,6 +61,7 @@ const CheckForPermitsAvailable = async (websiteSource) => {
 }
 
 const CheckWebsite = () => {
+    console.log(`Checking PCT calendar at ${new Date}`)
     fetch(pctPermitAvailabilityWebsite)
     .then(website => website.text())
     .then(text => CheckForPermitsAvailable(text));
