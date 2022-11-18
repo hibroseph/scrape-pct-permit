@@ -60,7 +60,6 @@ const CheckForPermitsAvailable = async (websiteSource) => {
 }
 
 const CheckWebsite = () => {
-    console.log("Checking for available permits at " + new Date().toUTCString())
     fetch(pctPermitAvailabilityWebsite)
     .then(website => website.text())
     .then(text => CheckForPermitsAvailable(text));
