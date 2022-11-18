@@ -1,0 +1,70 @@
+require('dotenv').config()
+const accountSid = process.env.TWILIO_ACCOUNT_SID;
+const authToken = process.env.TWILIO_AUTH_TOKEN;
+const notifyPhoneNumber = process.env.NOTIFY_PHONE_NUMBER;
+const twilioPhoneNumber = process.env.TWILIO_PHONE_NUMBER
+const client = require('twilio')(accountSid, authToken);
+
+let checkWebsiteEveryXSeconds = 3;
+let pctPermitAvailabilityWebsite = "https://portal.permit.pcta.org/availability/mexican-border.php";
+
+let messagesSent = [];
+
+console.log("watching pct availability page on a constant loop every " + checkWebsiteEveryXSeconds + " seconds");
+
+const StringifyAvailablePermits = (availablePermits) => {
+    let message = '';
+
+    availablePermits.map(permit => {
+        message += `(${permit.start_date}:${35-permit.num}) `
+    })
+
+    return message;
+}
+
+const GetNonSentMessages = (availablePermits) => availablePermits.filter(permit => messagesSent.find(sentPermit => sentPermit.start_date == permit.start_date) == undefined)
+
+const CheckForPermitsAvailable = async (websiteSource) => {
+
+    let permitInfo = await JSON.parse(websiteSource.match(/(?<=data\s=\s){.*}/gm))
+    let availablePermits = []
+    let datesChecked = 0;
+    permitInfo.calendar[4].num = 33;
+
+    permitInfo.calendar.map(date => {
+        datesChecked++;
+        if (date.num != 35) {
+            console.log("we found " + (35 - date.num) + " permit(s) on " + date.start_date)
+            availablePermits = [...availablePermits, date]
+        }
+    })
+
+    if (availablePermits.length > 0) {
+        let nonSentMessages = GetNonSentMessages(availablePermits);
+        
+        if (nonSentMessages.length > 0) {
+            console.debug("sending message because we had " + nonSentMessages.length + " available permit days")
+            //console.log(`Open Permits ${StringifyAvailablePermits(availablePermits)}`)
+            
+            client.messages
+            .create({
+                body: "Open Permits " + StringifyAvailablePermits(nonSentMessages),
+                from: twilioPhoneNumber,
+                to: notifyPhoneNumber
+            })
+
+            messagesSent = [...messagesSent, ...nonSentMessages]
+        }
+    } else {
+        console.debug("no permits were available")
+    }
+}
+
+const CheckWebsite = () => {
+    console.log("Checking for available permits at " + new Date().toUTCString())
+    fetch(pctPermitAvailabilityWebsite)
+    .then(website => website.text())
+    .then(text => CheckForPermitsAvailable(text));
+}
+
+setInterval(CheckWebsite, checkWebsiteEveryXSeconds * 1000);
