@@ -1,0 +1,5 @@
+{
+    "CheckEveryXSeconds": 10,
+    "StatusFileName": "status.txt",
+    "DebugFileName": "debug.log"
+}
