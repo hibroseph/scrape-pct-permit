@@ -16,7 +16,10 @@ NOTIFY_PHONE_NUMBER=<destination phone number in E.164 format>
 TWILIO_PHONE_NUMBER=<twilio number created from step 3 in E.164 format>
 CHECK_EVERY_X_SECONDS=<how often to check, probably don't make it less than 10>
 ```
-5. start application with node watch.js
+5. either
+    1. start application with node watch.js
+    2. make `start-process.sh` executable with `chmod +x start-process.sh` and execute `start-process.sh` with `./start-process.sh`
+        - Start process runs the node process disconnected from the tty session so it will keep running when you close the terminal where as `node watch.js` will terminate once the tty session is disconnected
 
 ## Changelogs
 - Added debug logging to file
