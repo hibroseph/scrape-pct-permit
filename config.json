@@ -1,5 +1,7 @@
 {
-    "CheckEveryXSeconds": 10,
+    "CheckEveryXSeconds": 30,
     "StatusFileName": "status.txt",
-    "DebugFileName": "debug.log"
+    "DebugFileName": "debug.log",
+    "EndDate": "2023-05-31",
+    "StartDate": "2023-05-10"
 }
