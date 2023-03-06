@@ -55,12 +55,12 @@ const CheckForPermitsAvailable = async (websiteSource, beginning_date) => {
   let availablePermits = [];
   let datesChecked = 0;
 
-  console.log("checking permit info");
+  console.log("checking permit info at " + new Date());
   //console.log(permitInfo.calendar);
   if (permitInfo == null) {
-    console.log("ruh roh, permit info is null");
-    console.log("here is the website source");
-    console.log(websiteSource);
+    console.error("ruh roh, permit info is null");
+    console.error("here is the website source");
+    console.error(websiteSource);
   } else {
     permitInfo.calendar.map((date) => {
       if (date.start_date >= startDate && date.start_date <= endDate) {
@@ -96,14 +96,20 @@ const CheckForPermitsAvailable = async (websiteSource, beginning_date) => {
       } else {
         WriteDebugLog("Permits were available but they have all been sent");
       }
+    } else {
+      WriteDebugLog("We did not find any available permits at " + new Date());
     }
   }
 };
 
 const CheckWebsite = () => {
-  fetch(pctPermitAvailabilityWebsite)
-    .then((website) => website.text())
-    .then((text) => CheckForPermitsAvailable(text));
+  try {
+    fetch(pctPermitAvailabilityWebsite)
+      .then((website) => website.text())
+      .then((text) => CheckForPermitsAvailable(text));
+  } catch (ex) {
+    console.error("failed to fetch at " + new Date());
+  }
 };
 
 setInterval(CheckWebsite, checkEveryXSeconds * 1000);
